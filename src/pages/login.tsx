@@ -17,8 +17,8 @@ export default function Login() {
 
   const toast = useToast()
 
-  const [room, setRoom] = useState<string | undefined>();
-  const [name, setName] = useState<string | undefined>();
+  const [room, setRoom] = useState<string>('');
+  const [name, setName] = useState<string>('');
 
   const { socket, isConnected } = useSocket();
   const roomId = search?.get('wr');
