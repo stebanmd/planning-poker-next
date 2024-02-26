@@ -1,42 +1,52 @@
 'use client';
 
-import { useMainContext } from '@/components/providers/main.provider';
+import { useMainContext } from '@/components/providers/main-provider';
 import { usePlayersContext } from '@/components/providers/players-provider';
 import { useSocket } from '@/components/providers/socket-provider';
 import GameCard from '@/components/ui/game-card';
 import PlayerBox from '@/components/ui/player-box';
 import { SocketIndicator } from '@/components/ui/socket-indicator';
-import { Box, Button, Stack } from '@chakra-ui/react';
-import { useRouter } from 'next/navigation';
+import { Box, Button, Spinner, Stack } from '@chakra-ui/react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function Poker() {
-  const { name, room } = useMainContext();
+  const { player } = useMainContext();
   const { socket } = useSocket();
 
   const { players } = usePlayersContext();
   const [selectedCard, setSelectedCard] = useState<string | undefined>(undefined);
 
-  const [running, setRunning] = useState(true)
+  const [running, setRunning] = useState<boolean>(!!player?.room.running);
+  const [loading, setLoading] = useState(true);
 
   const router = useRouter();
-  
+  const search = useSearchParams();
+
+  const roomId = search?.get('r');
+
   useEffect(() => {
-    if (!name) {
-      router.replace('/login');
+    if (!player) {
+      router.replace(`/login?wr=${roomId}`);
     }
-  }, [name, router]); 
+    setLoading(false);
+  }, [player, router, roomId]);
 
   useEffect(() => {
     if (socket) {
       socket.on('reveal', () => {
-        setRunning(false)
+        setRunning(false);
       });
 
       socket.on('restart', () => {
-        setRunning(true)
-        setSelectedCard(undefined)
-      })
+        setRunning(true);
+        setSelectedCard(undefined);
+      });
+
+      return () => {
+        socket.off('reveal');
+        socket.off('restart');
+      };
     }
   }, [socket]);
 
@@ -48,28 +58,29 @@ export default function Poker() {
   };
 
   const handleRevealCards = () => {
-    socket.emit('reveal-cards')
-  }
+    socket.emit('reveal-cards');
+  };
 
   const handleRestart = () => {
-    socket.emit('restart-game')
-  }
+    socket.emit('restart-game');
+  };
 
   const cards = ['1', '2', '3', '5', '8', '13', '21', '34', '55', '89', '☕', '?'];
+
+  if (loading) {
+    return <Spinner />;
+  }
   return (
     <Stack direction={'column'} gap={'2rem'} margin={'10rem'}>
       <Stack direction={'row'}>
-        <h1>Poker table {running.toString()}</h1>
+        <h1>Poker table</h1>
         <SocketIndicator />
-        <h2>{room}</h2>        
       </Stack>
       {running ? (
         <Button onClick={() => handleRevealCards()}>Reveal Cards</Button>
       ) : (
         <Button onClick={() => handleRestart()}>Restart</Button>
       )}
-
-      
 
       <Stack direction={'row'} gap={'.5rem'}>
         {players.map((player) => (

@@ -1,7 +1,7 @@
 export type Player = {
   id: string
   name: string
-  room: string
+  room: Room
   card?: string
 }
 

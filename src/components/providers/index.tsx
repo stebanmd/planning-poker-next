@@ -1,6 +1,6 @@
 'use client'
 
-import { MainProvider } from "@/components/providers/main.provider"
+import { MainProvider } from "@/components/providers/main-provider"
 import { PlayersProvider } from "@/components/providers/players-provider"
 import { SocketProvider } from "@/components/providers/socket-provider"
 import { ChakraProvider } from "@chakra-ui/react"

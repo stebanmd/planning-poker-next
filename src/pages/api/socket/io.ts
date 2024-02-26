@@ -2,7 +2,8 @@ import { Server as NetServer } from 'http';
 import { NextApiRequest } from 'next';
 import { Server as ServerIO } from 'socket.io';
 import { NextApiResponseServerIo } from '../../../../types';
-import { addPlayer, removePlayer, getPlayers, getPlayer, finishGame, restartGame, updatePlayerCard } from '@/services/pokerService';
+import * as service from '@/services/pokerService';
+import { Player } from '@/models/types';
 
 export const config = {
   api: {
@@ -24,49 +25,63 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
         next();
       });
 
-      socket.on('join-game', ({ name, room }, callback) => {
-        const { user, error } = addPlayer(socket.id, name, room);
-        if (error || !user) {
-          return callback(error);
+      socket.on('disconnect', () => {
+        const player = service.removePlayer(socket.id);
+        if (player) {
+          const remainingPlayers = service.getPlayers(player.room.id)
+          if (remainingPlayers.length === 0) {
+            service.removeRoom(player.room.id)
+          }
+
+          io.in(player.room.id).emit('players-in-room', remainingPlayers);
         }
-
-        socket.join(user.room);
-        io.in(room).emit('players-in-room', getPlayers(room));
-
-        callback();
       });
 
-      socket.on('disconnect', () => {
-        const user = removePlayer(socket.id);
-        if (user) {
-          io.in(user.room).emit('players-in-room', getPlayers(user.room));
+      socket.on('create-room', ({ roomName }, callback) => {
+        const { data, error } = service.createRoom(roomName)
+        if (error) {
+          return callback({ error })
         }
+
+        return callback({ id: data?.id })
+      })
+
+      socket.on('join-game', ({ name, room }, callback) => {
+        const { data, error } = service.addPlayer(socket.id, name, room);
+        if (error || !data) {
+          return callback({ error });
+        }
+
+        socket.join((data as Player).room.id);
+        io.in(room).emit('players-in-room', service.getPlayers(room));
+
+        callback({ data });
       });
 
       socket.on('select-card', (card) => {
-        const player = getPlayer(socket.id);
+        const player = service.getPlayer(socket.id);
         if (player) {
-          const updated = updatePlayerCard(player, card);
+          const updated = service.updatePlayerCard(player, card);
           if (updated) {
-            io.in(player.room).emit('players-in-room', getPlayers(player.room));
+            io.in(player.room.id).emit('players-in-room', service.getPlayers(player.room.id));
           }
         }
       });
 
       socket.on('reveal-cards', () => {
-        const player = getPlayer(socket.id);
+        const player = service.getPlayer(socket.id);
         if (player) {
-          finishGame(player.room)
-          io.in(player.room).emit('reveal');
+          service.finishGame(player.room.id)
+          io.in(player.room.id).emit('reveal');
         }
       });
 
       socket.on('restart-game', () => {
-        const player = getPlayer(socket.id);
+        const player = service.getPlayer(socket.id);
         if (player) {
-          restartGame(player.room)
-          io.in(player.room).emit('restart');
-          io.in(player.room).emit('players-in-room', getPlayers(player.room));
+          service.restartGame(player.room.id)
+          io.in(player.room.id).emit('restart');
+          io.in(player.room.id).emit('players-in-room', service.getPlayers(player.room.id));
         }
       });
     });

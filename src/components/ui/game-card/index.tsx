@@ -17,6 +17,7 @@ export default function GameCard({ selected = false, onSelect, value = '' }: Pro
       borderWidth={selected ? '5px': '3px'}
       backgroundColor={selected ? '#96e4f9' : ''}
       borderStyle={"solid"}
+      borderRadius={"5px"}
       borderColor={"navy"}
       display={"flex"}
       justifyContent={"center"}
