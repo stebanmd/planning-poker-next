@@ -29,9 +29,9 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
         const player = service.removePlayer(socket.id);
         if (player) {
           const remainingPlayers = service.getPlayers(player.room.id)
-          if (remainingPlayers.length === 0) {
-            service.removeRoom(player.room.id)
-          }
+          // if (remainingPlayers.length === 0) {
+          //   service.removeRoom(player.room.id)
+          // }
 
           io.in(player.room.id).emit('players-in-room', remainingPlayers);
         }
@@ -61,6 +61,9 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
       socket.on('select-card', (card) => {
         const player = service.getPlayer(socket.id);
         if (player) {
+          const room = service.getRoom(player.room.id)
+          if (!room?.running) return;
+
           const updated = service.updatePlayerCard(player, card);
           if (updated) {
             io.in(player.room.id).emit('players-in-room', service.getPlayers(player.room.id));

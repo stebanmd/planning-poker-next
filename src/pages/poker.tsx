@@ -5,8 +5,7 @@ import { usePlayersContext } from '@/components/providers/players-provider';
 import { useSocket } from '@/components/providers/socket-provider';
 import GameCard from '@/components/ui/game-card';
 import PlayerBox from '@/components/ui/player-box';
-import { SocketIndicator } from '@/components/ui/socket-indicator';
-import { Box, Button, Spinner, Stack } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Heading, Spinner, Stack } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -51,6 +50,7 @@ export default function Poker() {
   }, [socket]);
 
   const handleSelectCard = (card: string) => {
+    if (!running) return;
     const newCard = card === selectedCard ? undefined : card;
 
     socket.emit('select-card', newCard);
@@ -71,31 +71,43 @@ export default function Poker() {
     return <Spinner />;
   }
   return (
-    <Stack direction={'column'} gap={'2rem'} margin={'10rem'}>
-      <Stack direction={'row'}>
-        <h1>Poker table</h1>
-        <SocketIndicator />
-      </Stack>
-      {running ? (
-        <Button onClick={() => handleRevealCards()}>Reveal Cards</Button>
-      ) : (
-        <Button onClick={() => handleRestart()}>Restart</Button>
-      )}
+    <Flex flexDirection={'column'} gap={'2rem'} marginTop={'3rem'}>
+      <Center>
+        <Box>
+          <Heading as="h1">Planning Poker</Heading>
+          <Heading textAlign={'center'} as={'h2'} size="md">
+            {player?.room?.name}
+          </Heading>
+        </Box>
+      </Center>
 
-      <Stack direction={'row'} gap={'.5rem'}>
-        {players.map((player) => (
-          <PlayerBox key={player.id} player={player} running={running} />
-        ))}
-      </Stack>
+      <Center>
+        <Stack direction={'row'} gap={'.5rem'}>
+          {players.map((player) => (
+            <PlayerBox key={player.id} player={player} running={running} />
+          ))}
+        </Stack>
+      </Center>
 
-      <Box>
-        <h2>Select your card</h2>
+      <Center>
+        {running ? (
+          <Button w="10rem" onClick={() => handleRevealCards()}>
+            Reveal Cards
+          </Button>
+        ) : (
+          <Button w="10rem" onClick={() => handleRestart()}>
+            Restart
+          </Button>
+        )}
+      </Center>
+
+      <Center>
         <Stack direction={'row'} gap={'.5rem'}>
           {cards.map((card) => (
             <GameCard key={card} onSelect={handleSelectCard} selected={selectedCard === card} value={card} />
           ))}
         </Stack>
-      </Box>
-    </Stack>
+      </Center>
+    </Flex>
   );
 }

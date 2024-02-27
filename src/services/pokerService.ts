@@ -28,19 +28,24 @@ export const removeRoom = (id: string): Room | undefined => {
   if (index !== -1) return rooms.splice(index, 1)[0];
 };
 
-export const addPlayer = (id: string, name: string, room: string): BaseResponse => {
+export const getRoom = (roomId: string): Room | undefined => {
+  const room = rooms.find((r) => r.id == roomId);
+  return room;
+}
+
+export const addPlayer = (playerId: string, name: string, roomId: string): BaseResponse => {
   const existingUser = players.find((user) => user.name.trim().toLowerCase() === name.trim().toLowerCase());
 
   if (existingUser) return { error: 'Username has already been taken' };
-  if (!name || !room) return { error: 'Username and room are required' };
+  if (!name || !roomId) return { error: 'Username and room are required' };
 
-  let existingRoom = rooms.find((r) => r.id === room);
+  let existingRoom = rooms.find((r) => r.id === roomId);
   if (!existingRoom) {
     return { error: 'Room not found' }
   }
 
   const user = {
-    id,
+    id: playerId,
     name,
     room: existingRoom,
   };
@@ -49,18 +54,18 @@ export const addPlayer = (id: string, name: string, room: string): BaseResponse 
   return { data: user };
 };
 
-export const getPlayer = (id: string): Player | undefined => {
-  const user = players.find((user) => user.id == id);
-  return user;
+export const getPlayer = (playerId: string): Player | undefined => {
+  const player = players.find((p) => p.id == playerId);
+  return player;
 };
 
-export const removePlayer = (id: string): Player | undefined => {
-  const index = players.findIndex((user) => user.id === id);
+export const removePlayer = (playerId: string): Player | undefined => {
+  const index = players.findIndex((p) => p.id === playerId);
   if (index !== -1) return players.splice(index, 1)[0];
 };
 
-export const getPlayers = (room: string): Player[] => {
-  return players.filter((user) => user.room.id === room);
+export const getPlayers = (roomId: string): Player[] => {
+  return players.filter((p) => p.room.id === roomId);
 };
 
 export const updatePlayerCard = (player: Player, card?: string): boolean => {
@@ -69,20 +74,20 @@ export const updatePlayerCard = (player: Player, card?: string): boolean => {
   return true;
 };
 
-export const finishGame = (room: string): void => {
-  const index = rooms.findIndex((x) => x.id === room);
+export const finishGame = (roomId: string): void => {
+  const index = rooms.findIndex((x) => x.id === roomId);
   if (index >= 0) {
     rooms[index].running = false;
   }
 };
 
-export const restartGame = (room: string): void => {
-  const index = rooms.findIndex((x) => x.id === room);
+export const restartGame = (roomId: string): void => {
+  const index = rooms.findIndex((x) => x.id === roomId);
   if (index >= 0) {
     rooms[index].running = true;
 
     for (let i = 0; i < players.length; i++) {
-      if (players[i].room.id === room) {
+      if (players[i].room.id === roomId) {
         players[i].card = undefined;
       }
     }
