@@ -4,6 +4,7 @@ import { useMainContext } from '@/components/providers/main-provider';
 import { usePlayersContext } from '@/components/providers/players-provider';
 import { useSocket } from '@/components/providers/socket-provider';
 import GameCard from '@/components/ui/game-card';
+import GameScore from '@/components/ui/game-score';
 import PlayerBox from '@/components/ui/player-box';
 import { Box, Button, Center, Flex, Heading, Spinner, Stack } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -18,7 +19,7 @@ export default function Poker() {
 
   const [running, setRunning] = useState<boolean>(!!player?.room.running);
   const [loading, setLoading] = useState(true);
-  const [counter, setCounter] = useState<number>(-1)
+  const [counter, setCounter] = useState<number>(-1);
 
   const router = useRouter();
   const search = useSearchParams();
@@ -28,15 +29,15 @@ export default function Poker() {
   useEffect(() => {
     if (!player) {
       router.replace(`/login?wr=${roomId}`);
+    } else {
+      setLoading(false);
     }
-    setLoading(false);
   }, [player, router, roomId]);
 
   useEffect(() => {
     if (socket) {
       socket.on('reveal', () => {
-        setCounter(3)
-        // setRunning(false);
+        setCounter(3);
       });
 
       socket.on('restart', () => {
@@ -54,7 +55,7 @@ export default function Poker() {
   useEffect(() => {
     counter === 0 && setRunning(false);
     counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
-  }, [counter])
+  }, [counter]);
 
   const handleSelectCard = (card: string) => {
     if (!running || counter > 0) return;
@@ -99,7 +100,7 @@ export default function Poker() {
       <Center>
         {running ? (
           <Button w="10rem" onClick={() => handleRevealCards()} isDisabled={counter > 0}>
-            {(counter > 0) ? `Revealing in ${counter}...`: 'Reveal Cards'}            
+            {counter > 0 ? `Revealing in ${counter}...` : 'Reveal Cards'}
           </Button>
         ) : (
           <Button w="10rem" onClick={() => handleRestart()}>
@@ -114,6 +115,11 @@ export default function Poker() {
             <GameCard key={card} onSelect={handleSelectCard} selected={selectedCard === card} value={card} />
           ))}
         </Stack>
+      </Center>
+
+      <Center>
+
+        <GameScore running={running} />
       </Center>
     </Flex>
   );
