@@ -18,6 +18,7 @@ export default function Poker() {
 
   const [running, setRunning] = useState<boolean>(!!player?.room.running);
   const [loading, setLoading] = useState(true);
+  const [counter, setCounter] = useState<number>(-1)
 
   const router = useRouter();
   const search = useSearchParams();
@@ -34,7 +35,8 @@ export default function Poker() {
   useEffect(() => {
     if (socket) {
       socket.on('reveal', () => {
-        setRunning(false);
+        setCounter(3)
+        // setRunning(false);
       });
 
       socket.on('restart', () => {
@@ -49,8 +51,13 @@ export default function Poker() {
     }
   }, [socket]);
 
+  useEffect(() => {
+    counter === 0 && setRunning(false);
+    counter > 0 && setTimeout(() => setCounter(counter - 1), 1000);
+  }, [counter])
+
   const handleSelectCard = (card: string) => {
-    if (!running) return;
+    if (!running || counter > 0) return;
     const newCard = card === selectedCard ? undefined : card;
 
     socket.emit('select-card', newCard);
@@ -91,8 +98,8 @@ export default function Poker() {
 
       <Center>
         {running ? (
-          <Button w="10rem" onClick={() => handleRevealCards()}>
-            Reveal Cards
+          <Button w="10rem" onClick={() => handleRevealCards()} isDisabled={counter > 0}>
+            {(counter > 0) ? `Revealing in ${counter}...`: 'Reveal Cards'}            
           </Button>
         ) : (
           <Button w="10rem" onClick={() => handleRestart()}>
