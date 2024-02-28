@@ -83,7 +83,7 @@ export default function Login() {
         if (res.data) {
           const playerCreated = res.data as Player;
           setPlayer(playerCreated);
-          router.push(`/poker?r=${playerCreated.room.id}`);
+          router.replace(`/poker?r=${playerCreated.room.id}`);
         }
       }
     );

@@ -1,5 +1,4 @@
 import { Player, Room } from '@/models/types';
-import { ulid } from 'ulid';
 
 type BaseResponse = {
   data?: Player | Room;
@@ -9,19 +8,16 @@ type BaseResponse = {
 const players: Player[] = [];
 const rooms: Room[] = [];
 
-export const createRoom = (roomName: string): BaseResponse => {
-  const existingRoom = rooms.find((r) => r.name.trim().toLowerCase() === roomName.trim().toLowerCase())
-  if (existingRoom) return { error: 'Room already exists' }
-
+export const createRoom = (roomId: string, roomName: string): BaseResponse => {
   const newRoom: Room = {
-    id: ulid(),
+    id: roomId,
     name: roomName,
     running: true,
-  }
+  };
 
-  rooms.push(newRoom)
-  return { data: newRoom }
-}
+  rooms.push(newRoom);
+  return { data: newRoom };
+};
 
 export const removeRoom = (id: string): Room | undefined => {
   const index = rooms.findIndex((r) => r.id === id);
@@ -31,23 +27,23 @@ export const removeRoom = (id: string): Room | undefined => {
 export const getRoom = (roomId: string): Room | undefined => {
   const room = rooms.find((r) => r.id == roomId);
   return room;
-}
+};
 
 export const addPlayer = (playerId: string, name: string, roomId: string): BaseResponse => {
-  const existingUser = players.find((user) => user.name.trim().toLowerCase() === name.trim().toLowerCase());
+  const existingPlayer = players.find((p) => p.id === playerId);
+  if (existingPlayer) return { error: 'There was an error in our server, please refresh the page and try again' };
 
-  if (existingUser) return { error: 'Username has already been taken' };
   if (!name || !roomId) return { error: 'Username and room are required' };
 
-  let existingRoom = rooms.find((r) => r.id === roomId);
-  if (!existingRoom) {
-    return { error: 'Room not found' }
+  let room = rooms.find((r) => r.id === roomId);
+  if (!room) {
+    room = createRoom(roomId, 'New room').data as Room;
   }
 
   const user = {
     id: playerId,
     name,
-    room: existingRoom,
+    room,
   };
   players.push(user);
 
