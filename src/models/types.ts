@@ -3,6 +3,7 @@ export type Player = {
   name: string
   room: Room
   card?: string
+  spectator: boolean
 }
 
 export type Room = {

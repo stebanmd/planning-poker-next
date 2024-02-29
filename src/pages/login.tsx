@@ -6,7 +6,7 @@ import { useSocket } from '@/components/providers/socket-provider';
 import { useEffect, useState } from 'react';
 import { Player } from '@/models/types';
 import { usePlayersContext } from '@/components/providers/players-provider';
-import { Button, Card, CardBody, CardFooter, CardHeader, Center, Input, Stack, useToast } from '@chakra-ui/react';
+import { Button, Card, CardBody, CardFooter, CardHeader, Center, Checkbox, Input, useToast } from '@chakra-ui/react';
 
 export default function Login() {
   const { setPlayer } = useMainContext();
@@ -15,10 +15,11 @@ export default function Login() {
   const router = useRouter();
   const search = useSearchParams();
 
-  const toast = useToast()
+  const toast = useToast();
 
   const [room, setRoom] = useState<string>('');
   const [name, setName] = useState<string>('');
+  const [spectator, setSpectator] = useState<boolean>(false);
 
   const { socket, isConnected } = useSocket();
   const roomId = search?.get('wr');
@@ -54,7 +55,7 @@ export default function Login() {
           status: 'error',
           duration: 3000,
           isClosable: true,
-        })
+        });
       } else {
         console.log(`Join room: ${res.id}`);
         joinGame(res.id);
@@ -67,7 +68,8 @@ export default function Login() {
       'join-game',
       {
         name,
-        room: roomId,
+        roomId,
+        spectator,
       },
       (res: any) => {
         if (res.error) {
@@ -77,7 +79,7 @@ export default function Login() {
             status: 'error',
             duration: 3000,
             isClosable: true,
-          })
+          });
         }
 
         if (res.data) {
@@ -93,23 +95,23 @@ export default function Login() {
     <Center h="90vh">
       <Card>
         <form onSubmit={handleSubmitForm}>
-          <CardHeader>Login</CardHeader>
+          <CardHeader fontWeight={'500'}>Planning Poker</CardHeader>
           <CardBody gap={'1.5rem'} display={'flex'} flexDirection={'column'}>
-            <Stack direction={'row'}>
-              <Input w="300px" type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-            </Stack>
+            <Input w="300px" type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
 
             {!roomId && (
-              <Stack direction={'row'}>
-                <Input
-                  w="300px"
-                  type="text"
-                  placeholder="Enter a name for your room"
-                  value={room}
-                  onChange={(e) => setRoom(e.target.value)}
-                />
-              </Stack>
+              <Input
+                w="300px"
+                type="text"
+                placeholder="Enter a name for your room"
+                value={room}
+                onChange={(e) => setRoom(e.target.value)}
+              />
             )}
+
+            <Checkbox isChecked={spectator} onChange={(e) => setSpectator(e.target.checked)}>
+              {'Join as spectator'}
+            </Checkbox>
           </CardBody>
           <CardFooter>
             <Button type="submit" variant="outline" colorScheme="navy">

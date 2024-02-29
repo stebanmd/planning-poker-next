@@ -25,28 +25,26 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const socketInstance = new (ClientIO as any)(process.env.NEXT_PUBLIC_SITE_URL!, {
       path: '/api/socket/io',
       addTrailingSlash: false,
-      // transports: ['websocket', 'polling']
     });
-    
+
     socketInstance.on('connect', () => {
-      console.log('socket-client connected')
+      console.log('socket-client connected');
       setIsConnected(true);
-      socketInstance.emit('ping')
     });
 
     socketInstance.on('disconnect', () => {
-      console.log('socket-client disconnected')
+      console.log('socket-client disconnected');
       setIsConnected(false);
     });
 
-    socketInstance.on("connect_error", (err: any) => {
-      console.log(`connect_error due to ${err.message}`);
+    socketInstance.on('connect_error', (err: any) => {
+      console.error(`connect_error due to ${err.message}`);
     });
 
-    socketInstance.on("error", (err: any) => {
-      console.log(`error due to ${err.message}`);
+    socketInstance.on('error', (err: any) => {
+      console.error(`error due to ${err.message}`);
     });
-    
+
     setSocket(socketInstance);
     return () => {
       socketInstance.disconnect();

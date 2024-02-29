@@ -43,14 +43,14 @@ const ioHandler = (req: NextApiRequest, res: NextApiResponseServerIo) => {
         return callback({ id: data?.id });
       });
 
-      socket.on('join-game', ({ name, room }, callback) => {
-        const { data, error } = service.addPlayer(socket.id, name, room);
+      socket.on('join-game', ({ name, roomId, spectator }, callback) => {
+        const { data, error } = service.addPlayer(socket.id, name, roomId, spectator);
         if (error || !data) {
           return callback({ error });
         }
 
         socket.join((data as Player).room.id);
-        io.in(room).emit('players-in-room', service.getPlayers(room));
+        io.in(roomId).emit('players-in-room', service.getPlayers(roomId));
 
         callback({ data });
       });

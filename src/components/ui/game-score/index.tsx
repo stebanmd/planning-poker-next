@@ -18,7 +18,7 @@ export default function GameScore({ running }: Props) {
     } else {
       const cards = [];
       for (const player of players) {
-        if (player.card && !isNaN(+player.card)) {
+        if (!player.spectator && player.card && !isNaN(+player.card)) {
           cards.push(parseInt(player.card));
         }
       }
@@ -27,8 +27,10 @@ export default function GameScore({ running }: Props) {
       const avg = parseFloat((sum / cards.length).toFixed(2)) || 0;
       setAverage(avg);
 
-      const allPlayedSameCard = players.every((v, i, arr) => v.card && v.card !== '?' && v.card === arr[0].card);
-      setUnanimous(allPlayedSameCard);
+      const allPlayersAgreed = players
+        .filter((p) => !p.spectator)
+        .every((v, i, arr) => v.card && v.card === arr[0].card);
+      setUnanimous(allPlayersAgreed);
     }
   }, [running, players]);
 
@@ -38,8 +40,8 @@ export default function GameScore({ running }: Props) {
 
   return (
     <Stack textAlign={'center'}>
-      <StackItem fontWeight={'700'}>Average</StackItem>
-      <StackItem fontSize={'1.75rem'}>{unanimous ? players[0]?.card : average}</StackItem>
+      <StackItem fontWeight={'700'}>{unanimous ? 'All players agreed 🎉' : 'Average'}</StackItem>
+      {!unanimous && <StackItem fontSize={'1.75rem'}>{average}</StackItem>}
       {unanimous && <ConfettiExplosion />}
     </Stack>
   );

@@ -29,7 +29,7 @@ export const getRoom = (roomId: string): Room | undefined => {
   return room;
 };
 
-export const addPlayer = (playerId: string, name: string, roomId: string): BaseResponse => {
+export const addPlayer = (playerId: string, name: string, roomId: string, spectator: boolean): BaseResponse => {
   const existingPlayer = players.find((p) => p.id === playerId);
   if (existingPlayer) return { error: 'There was an error in our server, please refresh the page and try again' };
 
@@ -40,14 +40,15 @@ export const addPlayer = (playerId: string, name: string, roomId: string): BaseR
     room = createRoom(roomId, 'New room').data as Room;
   }
 
-  const user = {
+  const player = {
     id: playerId,
     name,
     room,
+    spectator,
   };
-  players.push(user);
+  players.push(player);
 
-  return { data: user };
+  return { data: player };
 };
 
 export const getPlayer = (playerId: string): Player | undefined => {

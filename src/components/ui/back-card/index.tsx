@@ -9,7 +9,7 @@ export default function BackCard({ selected }: Props) {
       w={'4rem'}
       h={'7rem'}
       borderWidth={'1px'}
-      backgroundImage={selected ? 'back.jpg' : ''}
+      backgroundImage={selected ? 'card.png' : ''}
       backgroundRepeat={'round'}
       borderStyle={'solid'}
       borderRadius={'5px'}

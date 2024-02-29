@@ -6,7 +6,7 @@ import { useSocket } from '@/components/providers/socket-provider';
 import GameCard from '@/components/ui/game-card';
 import GameScore from '@/components/ui/game-score';
 import PlayerBox from '@/components/ui/player-box';
-import { Box, Button, Center, Flex, Heading, Spinner, Stack } from '@chakra-ui/react';
+import { Box, Button, Center, Flex, Heading, Img, Spinner, Stack, Tooltip } from '@chakra-ui/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -27,8 +27,12 @@ export default function Poker() {
   const roomId = search?.get('r');
 
   useEffect(() => {
-    if (!player) {
-      router.replace(`/login?wr=${roomId}`);
+    if (!player || !roomId) {
+      let path = '/login';
+      if (roomId) {
+        path += `?wr=${roomId}`
+      }
+      router.replace(path);
     } else {
       setLoading(false);
     }
@@ -109,16 +113,17 @@ export default function Poker() {
         )}
       </Center>
 
-      <Center>
-        <Stack direction={'row'} gap={'.5rem'}>
-          {cards.map((card) => (
-            <GameCard key={card} onSelect={handleSelectCard} selected={selectedCard === card} value={card} />
-          ))}
-        </Stack>
-      </Center>
+      {!player?.spectator && (
+        <Center>
+          <Stack direction={'row'} gap={'.5rem'}>
+            {cards.map((card) => (
+              <GameCard key={card} onSelect={handleSelectCard} selected={selectedCard === card} value={card} />
+            ))}
+          </Stack>
+        </Center>
+      )}
 
       <Center>
-
         <GameScore running={running} />
       </Center>
     </Flex>
