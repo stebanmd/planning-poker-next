@@ -104,7 +104,7 @@ export default function Poker() {
       <Center>
         {running ? (
           <Button w="10rem" onClick={() => handleRevealCards()} isDisabled={counter > 0}>
-            {counter > 0 ? `Revealing in ${counter}...` : 'Reveal Cards'}
+            {counter > 0 ? `Revealing in ${counter}...` : 'Reveal cards'}
           </Button>
         ) : (
           <Button w="10rem" onClick={() => handleRestart()}>

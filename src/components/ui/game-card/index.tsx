@@ -12,7 +12,7 @@ export default function GameCard({ selected = false, onSelect, value = '' }: Pro
 
   return (
     <Box
-      w={'4rem'}
+      w={'4.7rem'}
       h={'7rem'}
       borderWidth={selected ? '5px' : '3px'}
       backgroundColor={selected ? '#96e4f9' : ''}

@@ -6,7 +6,7 @@ import { useSocket } from '@/components/providers/socket-provider';
 import { useEffect, useState } from 'react';
 import { Player } from '@/models/types';
 import { usePlayersContext } from '@/components/providers/players-provider';
-import { Button, Card, CardBody, CardFooter, CardHeader, Center, Checkbox, Input, useToast } from '@chakra-ui/react';
+import { Button, Card, CardBody, CardFooter, CardHeader, Center, Checkbox, Image, Input, useToast } from '@chakra-ui/react';
 
 export default function Login() {
   const { setPlayer } = useMainContext();
@@ -95,7 +95,12 @@ export default function Login() {
     <Center h="90vh">
       <Card>
         <form onSubmit={handleSubmitForm}>
-          <CardHeader fontWeight={'500'}>Planning Poker</CardHeader>
+          <CardHeader fontWeight={'500'}>
+            <Center gap={'.5rem'}>
+              <Image h={'3rem'} src="logo.svg" alt="planning poker" />
+              <span>Planning Poker</span>
+            </Center>
+          </CardHeader>
           <CardBody gap={'1.5rem'} display={'flex'} flexDirection={'column'}>
             <Input w="300px" type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
 
@@ -113,7 +118,7 @@ export default function Login() {
               {'Join as spectator'}
             </Checkbox>
           </CardBody>
-          <CardFooter>
+          <CardFooter justifyContent={'end'}>
             <Button type="submit" variant="outline" colorScheme="navy">
               Join
             </Button>

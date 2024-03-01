@@ -6,10 +6,10 @@ type Props = {
 export default function BackCard({ selected }: Props) {
   return (
     <Box
-      w={'4rem'}
+      w={'4.7rem'}
       h={'7rem'}
       borderWidth={'1px'}
-      backgroundImage={selected ? 'card.png' : ''}
+      backgroundImage={selected ? 'card.svg' : ''}
       backgroundRepeat={'round'}
       borderStyle={'solid'}
       borderRadius={'5px'}

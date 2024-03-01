@@ -3,7 +3,7 @@ import { Box } from '@chakra-ui/react';
 export default function SpectatorCard() {
   return (
     <Box
-      w={'4rem'}
+      w={'4.7rem'}
       h={'7rem'}
       backgroundColor={'#d2d2d2'}
       borderStyle={'solid'}
